@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Newtonsoft.Json;
-using TeleMusic.Bot.ViewModel;
 
 namespace TeleMusic.Bot.Services
 {
-    public class SearchYoutube
+    public class YoutubeService
     {
         private string API_KEY = "AIzaSyDa2HU_TDh6f2WQCUQBzHkSEz8Bgj2kXrk";
-        public async Task<List<VideoResponse>> GetVideos(string term)
+        public YoutubeService() { }
+        public async Task<TeleMusic.Bot.Data.Video> GetVideos(string term)
         {
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
@@ -25,7 +25,7 @@ namespace TeleMusic.Bot.Services
             searchListRequest.Q = term; // Replace with your search term.
             searchListRequest.MaxResults = 1;
             var searchListResponse = await searchListRequest.ExecuteAsync();
-            return searchListResponse.Items.Select(s => new VideoResponse
+            return searchListResponse.Items.Select(s => new TeleMusic.Bot.Data.Video
             {
                 VideoId = s.Id.VideoId,
                 ChannelTitle = s.Snippet.ChannelTitle,
@@ -33,8 +33,9 @@ namespace TeleMusic.Bot.Services
                 PublishedAt = (DateTime)s.Snippet.PublishedAt,
                 ThumbnailsMedium = s.Snippet.Thumbnails.Medium.Url,
                 ThumbnailsHigh = s.Snippet.Thumbnails.High.Url,
-                Duration = GetVideoDuration(s.Id.VideoId)
-            }).ToList();
+                Duration = GetVideoDuration(s.Id.VideoId),
+                link = $"https://www.youtube.com/watch?v={s.Id.VideoId}&ab_channel={s.Snippet.ChannelTitle}"
+            }).FirstOrDefault();
         }
         public int GetVideoDuration(string videoId)
         {

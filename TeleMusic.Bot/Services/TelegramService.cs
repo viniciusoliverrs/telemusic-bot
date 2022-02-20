@@ -8,17 +8,24 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TeleMusic.Bot.ViewModel;
 
 namespace TeleMusic.Bot.Services
 {
-    public class TeleBot
+    public class TelegramService
     {
+        private readonly VideoService videoService;
+        private readonly YoutubeService youtubeService;
+        private readonly string API_KEY = "5180450615:AAHPQIWQcDtnVuHJcGSnOPAZYA9E55r9_ys";
+        public TelegramService(VideoService videoService, YoutubeService youtubeService)
+        {
+            this.videoService = videoService;
+            this.youtubeService = youtubeService;
+        }
         public async Task Init()
         {
             try
             {
-                var botClient = new TelegramBotClient("5180450615:AAHPQIWQcDtnVuHJcGSnOPAZYA9E55r9_ys");
+                var botClient = new TelegramBotClient(API_KEY);
                 using var cts = new CancellationTokenSource();
                 var receiverOptions = new ReceiverOptions
                 {
@@ -31,6 +38,7 @@ namespace TeleMusic.Bot.Services
                     cancellationToken: cts.Token);
 
                 var me = await botClient.GetMeAsync();
+
                 Console.WriteLine($"Start listening for @{me.Username}");
                 Console.ReadLine();
                 cts.Cancel();
@@ -44,20 +52,34 @@ namespace TeleMusic.Bot.Services
         {
             try
             {
+                TeleMusic.Bot.Data.Video video = null;
                 if (update.Type != UpdateType.Message || update.Message!.Type != MessageType.Text)
                     return;
                 long chatId = update.Message.Chat.Id;
-                List<VideoResponse> videos = await new SearchYoutube().GetVideos(update.Message.Text);
-                var video = videos.FirstOrDefault();
-                Message sentMessage = await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: $"https://www.youtube.com/watch?v={video.VideoId}&ab_channel={video.ChannelTitle}",
-                    cancellationToken: cancellationToken);
+                var query = update.Message.Text;
+                if (videoService.Search(query) == null)
+                {
+                    video = await youtubeService.GetVideos(query);
+                    await videoService.Add(video);
+                }
+                else
+                {
+                    video = videoService.Search(query);
+                }
+
+                Message sentMessage = await SendTextMessage(video.link, chatId, botClient, cancellationToken);
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
+        }
+        public async Task<Message> SendTextMessage(string messsage, long chatId, ITelegramBotClient botClient, CancellationToken cancellationToken)
+        {
+            return await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: messsage,
+                    cancellationToken: cancellationToken);
         }
 
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

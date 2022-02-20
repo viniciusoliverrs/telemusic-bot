@@ -1,11 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Telegram.Bot;
-using Telegram.Bot.Exceptions;
-using Telegram.Bot.Extensions.Polling;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
+﻿using System.Threading.Tasks;
 using TeleMusic.Bot.Services;
 
 namespace TeleMusic.Bot
@@ -14,7 +7,7 @@ namespace TeleMusic.Bot
     {
         static async Task Main(string[] args)
         {
-            await new TeleBot().Init();
+            await new TelegramService(new VideoService(), new YoutubeService()).Init();
         }
     }
 }
