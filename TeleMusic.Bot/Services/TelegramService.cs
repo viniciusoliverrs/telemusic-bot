@@ -66,7 +66,7 @@ namespace TeleMusic.Bot.Services
                 {
                     video = videoService.Search(query);
                 }
-
+                Console.WriteLine(update.Message);
                 Message sentMessage = await SendTextMessage(video.link, chatId, botClient, cancellationToken);
             }
             catch (Exception e)

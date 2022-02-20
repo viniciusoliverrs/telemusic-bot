@@ -7,7 +7,9 @@ namespace TeleMusic.Bot
     {
         static async Task Main(string[] args)
         {
-            await new TelegramService(new VideoService(), new YoutubeService()).Init();
+            VideoService videoService = new VideoService();
+            YoutubeService youtubeService = new YoutubeService();
+            await new TelegramService(videoService, youtubeService).Init();
         }
     }
 }
