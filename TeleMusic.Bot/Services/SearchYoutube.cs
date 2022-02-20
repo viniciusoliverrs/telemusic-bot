@@ -13,7 +13,7 @@ namespace TeleMusic.Bot.Services
     public class SearchYoutube
     {
         private string API_KEY = "AIzaSyDa2HU_TDh6f2WQCUQBzHkSEz8Bgj2kXrk";
-        public async Task<VideoResponse> GetVideos(string term)
+        public async Task<List<VideoResponse>> GetVideos(string term)
         {
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
@@ -25,21 +25,26 @@ namespace TeleMusic.Bot.Services
             searchListRequest.Q = term; // Replace with your search term.
             searchListRequest.MaxResults = 1;
             var searchListResponse = await searchListRequest.ExecuteAsync();
-            return searchListResponse.Items.Select(s=> new VideoResponse
+            return searchListResponse.Items.Select(s => new VideoResponse
             {
                 VideoId = s.Id.VideoId,
                 ChannelTitle = s.Snippet.ChannelTitle,
-            }).FirstOrDefault();
+                Title = s.Snippet.Title,
+                PublishedAt = (DateTime)s.Snippet.PublishedAt,
+                ThumbnailsMedium = s.Snippet.Thumbnails.Medium.Url,
+                ThumbnailsHigh = s.Snippet.Thumbnails.High.Url,
+                Duration = GetVideoDuration(s.Id.VideoId)
+            }).ToList();
         }
         public int GetVideoDuration(string videoId)
         {
             using (var webClient = new WebClient())
             {
-                    var url = $"https://www.googleapis.com/youtube/v3/videos?id={String.Format(videoId)}&key={API_KEY}&part=contentDetails";
-                    var jsonResponse = webClient.DownloadString(url);
-                    dynamic dynamicObject = JsonConvert.DeserializeObject(jsonResponse);
-                    string tmp = dynamicObject.items[0].contentDetails.duration;
-                    return Convert.ToInt32(System.Xml.XmlConvert.ToTimeSpan(tmp).TotalMinutes);
+                var url = $"https://www.googleapis.com/youtube/v3/videos?id={String.Format(videoId)}&key={API_KEY}&part=contentDetails";
+                var jsonResponse = webClient.DownloadString(url);
+                dynamic dynamicObject = JsonConvert.DeserializeObject(jsonResponse);
+                string tmp = dynamicObject.items[0].contentDetails.duration;
+                return Convert.ToInt32(System.Xml.XmlConvert.ToTimeSpan(tmp).TotalMinutes);
             }
         }
     }

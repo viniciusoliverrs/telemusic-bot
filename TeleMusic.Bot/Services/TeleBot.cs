@@ -8,6 +8,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using TeleMusic.Bot.ViewModel;
 
 namespace TeleMusic.Bot.Services
 {
@@ -45,10 +46,9 @@ namespace TeleMusic.Bot.Services
             {
                 if (update.Type != UpdateType.Message || update.Message!.Type != MessageType.Text)
                     return;
-
                 long chatId = update.Message.Chat.Id;
-                var video = await new SearchYoutube().GetVideos(update.Message.Text);
-
+                List<VideoResponse> videos = await new SearchYoutube().GetVideos(update.Message.Text);
+                var video = videos.FirstOrDefault();
                 Message sentMessage = await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: $"https://www.youtube.com/watch?v={video.VideoId}&ab_channel={video.ChannelTitle}",
