@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace TeleMusic.Bot.Services
         {
             using (var context = new DataContext())
             {
+                model.Id = Guid.NewGuid();
                 await context.Videos.AddAsync(model);
                 await context.SaveChangesAsync();
             }

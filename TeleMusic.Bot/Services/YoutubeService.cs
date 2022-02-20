@@ -33,6 +33,7 @@ namespace TeleMusic.Bot.Services
                 PublishedAt = (DateTime)s.Snippet.PublishedAt,
                 ThumbnailsMedium = s.Snippet.Thumbnails.Medium.Url,
                 ThumbnailsHigh = s.Snippet.Thumbnails.High.Url,
+                Description = s.Snippet.Description,
                 Duration = GetVideoDuration(s.Id.VideoId),
                 link = $"https://www.youtube.com/watch?v={s.Id.VideoId}&ab_channel={s.Snippet.ChannelTitle}"
             }).FirstOrDefault();
@@ -41,6 +42,7 @@ namespace TeleMusic.Bot.Services
         {
             using (var webClient = new WebClient())
             {
+                if (videoId == null) return 0;
                 var url = $"https://www.googleapis.com/youtube/v3/videos?id={String.Format(videoId)}&key={API_KEY}&part=contentDetails";
                 var jsonResponse = webClient.DownloadString(url);
                 dynamic dynamicObject = JsonConvert.DeserializeObject(jsonResponse);
