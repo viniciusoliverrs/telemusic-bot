@@ -11,7 +11,7 @@ namespace TeleMusic.Bot.Services
 {
     public class YoutubeService
     {
-        private string API_KEY = "AIzaSyDa2HU_TDh6f2WQCUQBzHkSEz8Bgj2kXrk";
+        private string API_KEY = "[your key]";
         public YoutubeService() { }
         public async Task<TeleMusic.Bot.Data.Video> GetVideos(string term)
         {
