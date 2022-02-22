@@ -15,7 +15,7 @@ namespace TeleMusic.Bot.Services
     {
         private readonly VideoService videoService;
         private readonly YoutubeService youtubeService;
-        private readonly string API_KEY = "5180450615:AAHPQIWQcDtnVuHJcGSnOPAZYA9E55r9_ys";
+        private readonly string API_KEY = [your key];
         public TelegramService(VideoService videoService, YoutubeService youtubeService)
         {
             this.videoService = videoService;
